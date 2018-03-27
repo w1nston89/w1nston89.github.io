@@ -1,0 +1,43 @@
+*{
+	box-sizing: border-box;
+}
+table{
+	border: solid 0.1em black;
+	border-radius: 0.3em;
+	margin: auto;
+}
+
+td{
+	background-color: #E7E7E7;
+	width: 1em;
+	height: 1em;
+	border-radius: 20%;
+}
+
+.title{
+	text-align: center;
+}
+
+.font{
+	font-size: 1.5em;
+	float: left;
+}
+
+#snake-length{
+	color: #CA0000;
+	margin-left: 0.25em;
+}
+.current-score{
+	float: right;
+}
+#myScore{
+	float: right;
+	width: 5em;
+	margin-left: 0.25em;
+	color: #15A602;
+}
+
+/* Public */
+.clearfix{
+	clear: both;
+}

@@ -8,23 +8,29 @@ function Game(name) {
 	this.timerId = 0;
 	this.pause=0;
 	this.speed=500;
-	
+	this.username='';
+	this.myScore=0;
+
+
 	this.init= function(){
 		for (let x=0; x<this.width; x++) {
 			this.pole[x]=[];
 			for (let y=0; y<this.height; y++){
-				this.pole[x][y]=0;
+				this.pole[x][y]=0;	
 			}
 		}
+		this.enterUserName();
 		let x = Math.floor(Math.random() * (this.width - 4)) + 2;
 		let y = Math.floor(Math.random() * (this.height - 4)) + 2;
 		this.snake[0]={x:x,y:y};
 		this.snake[1]={};
 		this.move();
 
-		let foodX = Math.floor( Math.random( ) * (this.width - 1) ) + 1;
-		let foodY = Math.floor( Math.random( ) * (this.height - 1) ) + 1;
-		this.pole[foodX][foodY]=1;
+		this.randomFood();
+	}
+	// функция запроса имени
+	this.enterUserName=function(){
+		this.username=prompt('Ваше имя','');
 	}
 	// создаем поле
 	this.table= function(){
@@ -43,7 +49,7 @@ function Game(name) {
 		for (i=0;i<20;i++){
 			for (k=0;k<20;k++){
 				if (this.pole[i][k]){
-					$(`#${this.name}-${i}-${k}`).css({'background-image':'url(img/food.png)','background-repeat':'no-repeat','background-color':'red'});
+					$(`#${this.name}-${i}-${k}`).css({'background-image':'url(img/food.png)','background-repeat':'no-repeat','background-color':'#E7E7E7'});
 				}
 				else{
 					$(`#${this.name}-${i}-${k}`).css({'background-color':'#E7E7E7','background-image':'none'});
@@ -55,6 +61,20 @@ function Game(name) {
 			$(`#${this.name}-${i.x}-${i.y}`).css("background-color","#6F8FA1");
 			console.log(i);
 		};
+		//вывод длины змейки
+		this.currentSnakeLength();
+		// вывод заработанных очков
+		this.currentScore();
+	}
+	// функция вывода длины змейки
+	this.currentSnakeLength=function(){
+		let snakeLength=this.snake.length;
+		document.getElementById('current-length').innerHTML = "<span id='snake-length'>" + snakeLength + "</span>";
+	}
+	// функция вывода заработанных очков
+	this.currentScore=function(){
+		this.myScore=(this.snake.length-2)*10;
+		document.getElementById('myScore').innerHTML = this.myScore;
 	}
 	
 	// Движение змейки
@@ -75,10 +95,12 @@ function Game(name) {
 			case 'left':
 			head.x--;
 		};
+		// врезание змейки самой в себя
 		for(let i of this.snake){
 			if ((head.x===i.x) && (head.y===i.y)){
 				alert('ТЫДЫЫЫЫЫЩЩЩ');
-				window.location.reload();
+				$.post('/score',{name:this.username,score:this.myScore});//отправка результатов игры в файл bestScore.json
+				window.location.reload();//перезагрузка игры(страницы)
 			}
 		};
 		// Проверка границ поля
@@ -94,7 +116,6 @@ function Game(name) {
 		else if(head.y<0){
 			head.y=this.height-1;
 		};
-		// this.checkCrashSelf(head);
 		// Добавляем элемент в начало
 		this.snake.unshift(head);
 		// поедание еды
@@ -104,12 +125,11 @@ function Game(name) {
 		}
 		else{
 			this.pole[head.x][head.y]=0;
+			// случайная генерация ячейки с едой после проверки на наличие тела змейки по заданым координатам
 			this.randomFood();
 		};
-		if(this.snake.length==55){
-			alert('Длина равна 55');
-		}
 	};
+	// функция генерации случайной ячейки с едой после проверки на наличие в данных ячейках тела змейки
 	this.randomFood = function(){
 		
 		let foodX;
@@ -129,6 +149,7 @@ function Game(name) {
 		while(allbad);
 		this.pole[foodX][foodY]=1;
 	};
+	// функция присвоения кнопкам на клавиатуре возможности изменять направление движения змейки
 	this.key = function(event){
 		if (event.key === 'ArrowUp') {
 			this.direction='up';
@@ -142,6 +163,7 @@ function Game(name) {
 		else if (event.key === 'ArrowLeft') {
 			this.direction='left';
 		}
+		// присваиваем кнопке "р(англ.)" на клавиатуре фунцию паузы игры
 		else if(event.key === 'p') {
 			if(this.pause) {
 				this.pause=0;
@@ -171,7 +193,8 @@ game.timerId = setInterval(function(){
 },500);
 $.getJSON('/score', (data)=>{
 	console.log(data);
-})
+});
+
 
 // let game2=new Game('game2');
 
